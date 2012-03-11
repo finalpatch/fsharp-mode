@@ -2,7 +2,8 @@
 
 This work is a fork of the fsharp-mode originally developed by Laurent
 Le Brun (at http://sourceforge.net/projects/fsharp-mode/), which,
-according to the author, is no longer under active development.
+according to the author, is no longer under active development right
+now.
 
 The changes I have made over the original version are:
 
