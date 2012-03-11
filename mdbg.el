@@ -10,7 +10,6 @@
     ;; Process all complete markers in this chunk
     (while
 	(cond
-	 ;; System V Release 3.2 uses this format
 	 ((string-match "{\\(\\(?:[A-Za-z]:\\)?[^:]+\\):\\([0-9]+\\)}\n"
 			gud-marker-acc start)
 	  (setq gud-last-frame
