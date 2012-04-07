@@ -170,11 +170,12 @@
 ;labels (and open)
    '("\\<\\(assert\\|open\\|include\\|module\\|namespace\\|extern\\|void\\)\\>\\|[~?][ (]*[a-z][a-zA-Z0-9_']*"
      . font-lock-variable-name-face)
-   (cons (concat
-          "\\<\\(asr\\|false\\|land\\|lor\\|lsl\\|lsr\\|lxor"
-          "\\|mod\\|new\\|null\\|object\\|or\\|sig\\|true\\)\\>"
-          "\\|\|\\|->\\|&\\|#")
-         'font-lock-constant-face)))
+   ;; (cons (concat
+   ;;        "\\<\\(asr\\|false\\|land\\|lor\\|lsl\\|lsr\\|lxor"
+   ;;        "\\|mod\\|new\\|null\\|object\\|or\\|sig\\|true\\)\\>"
+   ;;        "\\|\|\\|->\\|&\\|#")
+   ;;       'font-lock-constant-face)
+   ))
 
 (defconst inferior-fsharp-font-lock-keywords
   (append
