@@ -78,7 +78,8 @@
 (defvar fsharp-var-pre-form
   (lambda ()
     (save-excursion
-      (search-forward "="))))
+      (re-search-forward "\\(:\\s-*\\w[^)]*\\)?=")
+      (match-beginning 0))))
 
 (defconst fsharp-font-lock-keywords
   (list
@@ -151,9 +152,12 @@
   `(,fsharp-member-function-regexp 1 font-lock-function-name-face)
   `(,fsharp-overload-operator-regexp 1 font-lock-function-name-face)
   `(,fsharp-constructor-regexp 1 font-lock-function-name-face)
-  `("\\>\\s-*:\\s-*\\(\\<[A-Za-z_'][A-Za-z0-9_'<>]*\\)" 1 font-lock-type-face) ; type annotation
+  `("[^:]:\\s-*\\(\\<[A-Za-z_'][^,)=<]*\\)" 1 font-lock-type-face) ; type annotation
   `("\\<let\\>" (0 font-lock-keyword-face) ; binding and function arguments
-    ("\\<[A-Za-z_'][A-Za-z0-9_']*\\>" (,fsharp-var-pre-form) nil (0 font-lock-variable-name-face)))
+    ("\\<\\([A-Za-z_][A-Za-z0-9_']*\\)\\>\\|(\\s-*\\([A-Za-z_][A-Za-z0-9_']*\\)[^)]*"
+     (,fsharp-var-pre-form) nil
+     (1 font-lock-variable-name-face nil t)
+     (2 font-lock-variable-name-face nil t)))
 
   ;; open namespace
   '("\\<open\s\\([A-Za-z0-9_.]+\\)" 1 font-lock-type-face)
