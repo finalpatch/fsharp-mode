@@ -64,6 +64,7 @@
   "\\<\\(?:override\\|member\\|abstract\\)\\s-+\\(?:\\(?:inline\\|rec\\)\\s-+\\)?\\(([!%&*+-./<=>?@^|~]+)\\)")
 (defconst fsharp-constructor-regexp "^\\s-*\\<\\(new\\) *(.*)[^=]*=")
 (defconst fsharp-type-def-regexp "^\\s-*\\<\\(?:type\\|and\\)\\s-+\\(?:private\\|internal\\|public\\)*\\([A-Za-z0-9_'.]+\\)")
+(defconst fsharp-var-or-arg-regexp "\\<\\([A-Za-z_][A-Za-z0-9_']*\\)\\>\\|(\\s-*\\([A-Za-z_][A-Za-z0-9_']*\\)[^)]*")
 
 (defvar fsharp-imenu-generic-expression
   `((nil ,(concat "^\\s-*" fsharp-function-def-regexp) 1)
@@ -80,6 +81,11 @@
     (save-excursion
       (re-search-forward "\\(:\\s-*\\w[^)]*\\)?=")
       (match-beginning 0))))
+
+(defvar fsharp-fun-pre-form
+  (lambda ()
+    (save-excursion      
+      (search-forward "->"))))
 
 (defconst fsharp-font-lock-keywords
   (list
@@ -153,9 +159,16 @@
   `(,fsharp-overload-operator-regexp 1 font-lock-function-name-face)
   `(,fsharp-constructor-regexp 1 font-lock-function-name-face)
   `("[^:]:\\s-*\\(\\<[A-Za-z_'][^,)=<]*\\)" 1 font-lock-type-face) ; type annotation
-  `("\\<let\\|use\\|override\\|member\\>" (0 font-lock-keyword-face) ; binding and function arguments
-    ("\\<\\([A-Za-z_][A-Za-z0-9_']*\\)\\>\\|(\\s-*\\([A-Za-z_][A-Za-z0-9_']*\\)[^)]*"
+  `("\\<let\\|use\\|override\\|member\\>"
+    (0 font-lock-keyword-face) ; let binding and function arguments
+    (,fsharp-var-or-arg-regexp
      (,fsharp-var-pre-form) nil
+     (1 font-lock-variable-name-face nil t)
+     (2 font-lock-variable-name-face nil t)))
+  `("\\<fun\\>"
+    (0 font-lock-keyword-face) ; let binding and function arguments
+    (,fsharp-var-or-arg-regexp
+     (,fsharp-fun-pre-form) nil
      (1 font-lock-variable-name-face nil t)
      (2 font-lock-variable-name-face nil t)))
 
