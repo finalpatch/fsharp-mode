@@ -64,7 +64,7 @@
   "\\<\\(?:override\\|member\\|abstract\\)\\s-+\\(?:\\(?:inline\\|rec\\)\\s-+\\)?\\(([!%&*+-./<=>?@^|~]+)\\)")
 (defconst fsharp-constructor-regexp "^\\s-*\\<\\(new\\) *(.*)[^=]*=")
 (defconst fsharp-type-def-regexp "^\\s-*\\<\\(?:type\\|and\\)\\s-+\\(?:private\\|internal\\|public\\)*\\([A-Za-z0-9_'.]+\\)")
-(defconst fsharp-var-or-arg-regexp "\\<\\([A-Za-z_][A-Za-z0-9_']*\\)\\>\\|(\\s-*\\([A-Za-z_][A-Za-z0-9_']*\\)[^)]*")
+(defconst fsharp-var-or-arg-regexp "\\<\\([A-Za-z_][A-Za-z0-9_']*\\)\\>")
 
 (defvar fsharp-imenu-generic-expression
   `((nil ,(concat "^\\s-*" fsharp-function-def-regexp) 1)
@@ -158,19 +158,22 @@
   `(,fsharp-member-function-regexp 1 font-lock-function-name-face)
   `(,fsharp-overload-operator-regexp 1 font-lock-function-name-face)
   `(,fsharp-constructor-regexp 1 font-lock-function-name-face)
-  `("[^:]:\\s-*\\(\\<[A-Za-z_'][^,)=<]*\\)" 1 font-lock-type-face) ; type annotation
+  `("[^:]:\\s-*\\(\\<[A-Za-z_'][^,)=<]*\\)\\s-*\\(<[^>]*>\\)?"
+    (1 font-lock-type-face)             ; type annotations
+    ;; HACK: font-lock-negation-char-face is usually the same as
+    ;; 'default'. use this to prevent generic type arguments from
+    ;; being rendered in variable face
+    (2 font-lock-negation-char-face nil t))
   `("\\<let\\|use\\|override\\|member\\>"
     (0 font-lock-keyword-face) ; let binding and function arguments
     (,fsharp-var-or-arg-regexp
      (,fsharp-var-pre-form) nil
-     (1 font-lock-variable-name-face nil t)
-     (2 font-lock-variable-name-face nil t)))
+     (1 font-lock-variable-name-face nil t)))
   `("\\<fun\\>"
     (0 font-lock-keyword-face) ; let binding and function arguments
     (,fsharp-var-or-arg-regexp
      (,fsharp-fun-pre-form) nil
-     (1 font-lock-variable-name-face nil t)
-     (2 font-lock-variable-name-face nil t)))
+     (1 font-lock-variable-name-face nil t)))
 
   ;; open namespace
   '("\\<open\s\\([A-Za-z0-9_.]+\\)" 1 font-lock-type-face)
