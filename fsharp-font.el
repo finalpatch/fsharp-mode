@@ -59,9 +59,9 @@
 (defconst fsharp-active-pattern-regexp
   "\\<\\(?:let\\|and\\)\\s-+\\(?:\\(?:inline\\|rec\\)\\s-+\\)?(\\(|[A-Za-z0-9_'|]+|\\))\\(?:\\s-+[A-Za-z_]\\|\\s-*(\\)")
 (defconst fsharp-member-function-regexp
-  "\\<\\(?:override\\|member\\|abstract\\)\\s-+\\(?:\\(?:inline\\|rec\\|public\\|private\\|internal\\)\\s-+\\)*\\(?:[A-Za-z0-9_']+\\.\\)?\\([A-Za-z0-9_']+\\)")
+  "\\<\\(?:override\\|default\\|member\\|abstract\\)\\s-+\\(?:\\(?:inline\\|rec\\|public\\|private\\|internal\\)\\s-+\\)*\\(?:[A-Za-z0-9_']+\\.\\)?\\([A-Za-z0-9_']+\\)")
 (defconst fsharp-overload-operator-regexp
-  "\\<\\(?:override\\|member\\|abstract\\)\\s-+\\(?:\\(?:inline\\|rec\\|public\\|private\\|internal\\)\\s-+\\)*\\(([!%&*+-./<=>?@^|~]+)\\)")
+  "\\<\\(?:override\\|default\\|member\\|abstract\\)\\s-+\\(?:\\(?:inline\\|rec\\|public\\|private\\|internal\\)\\s-+\\)*\\(([!%&*+-./<=>?@^|~]+)\\)")
 (defconst fsharp-constructor-regexp "^\\s-*\\<\\(new\\) *(.*)[^=]*=")
 (defconst fsharp-field-regexp "^\\s-*val\\s-*\\([A-Za-z_][A-Za-z0-9_']*\\)\\s-*:\\s-*\\([^
 ]+\\)")
@@ -166,7 +166,7 @@
     ;; 'default'. use this to prevent generic type arguments from
     ;; being rendered in variable face
     (2 font-lock-negation-char-face nil t))
-  `("\\<let\\|use\\|override\\|member\\>"
+  `("\\<let\\|use\\|override\\|default\\|member\\>"
     (0 font-lock-keyword-face) ; let binding and function arguments
     (,fsharp-var-or-arg-regexp
      (,fsharp-var-pre-form) nil
