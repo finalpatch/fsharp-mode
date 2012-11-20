@@ -59,9 +59,9 @@
 (defconst fsharp-active-pattern-regexp
   "\\<\\(?:let\\|and\\)\\s-+\\(?:\\(?:inline\\|rec\\)\\s-+\\)?(\\(|[A-Za-z0-9_'|]+|\\))\\(?:\\s-+[A-Za-z_]\\|\\s-*(\\)")
 (defconst fsharp-member-function-regexp
-  "\\<\\(?:override\\|member\\|abstract\\)\\s-+\\(?:\\(?:inline\\|rec\\)\\s-+\\)?\\(?:[A-Za-z0-9_']+\\.\\)?\\([A-Za-z0-9_']+\\)")
+  "\\<\\(?:override\\|member\\|abstract\\)\\s-+\\(?:\\(?:inline\\|rec\\|public\\|private\\|internal\\)\\s-+\\)*\\(?:[A-Za-z0-9_']+\\.\\)?\\([A-Za-z0-9_']+\\)")
 (defconst fsharp-overload-operator-regexp
-  "\\<\\(?:override\\|member\\|abstract\\)\\s-+\\(?:\\(?:inline\\|rec\\)\\s-+\\)?\\(([!%&*+-./<=>?@^|~]+)\\)")
+  "\\<\\(?:override\\|member\\|abstract\\)\\s-+\\(?:\\(?:inline\\|rec\\|public\\|private\\|internal\\)\\s-+\\)*\\(([!%&*+-./<=>?@^|~]+)\\)")
 (defconst fsharp-constructor-regexp "^\\s-*\\<\\(new\\) *(.*)[^=]*=")
 (defconst fsharp-type-def-regexp "^\\s-*\\<\\(?:type\\|and\\)\\s-+\\(?:private\\|internal\\|public\\)*\\([A-Za-z0-9_'.]+\\)")
 (defconst fsharp-var-or-arg-regexp "\\<\\([A-Za-z_][A-Za-z0-9_']*\\)\\>")
@@ -158,19 +158,19 @@
   `(,fsharp-member-function-regexp 1 font-lock-function-name-face)
   `(,fsharp-overload-operator-regexp 1 font-lock-function-name-face)
   `(,fsharp-constructor-regexp 1 font-lock-function-name-face)
-  `("[^:]:\\s-*\\(\\<[A-Za-z_'][^,)=<-]*\\)\\s-*\\(<[^>]*>\\)?"
+  `("[^:]:\\s-*\\(\\<[A-Za-z_'][^,;)}=<-]*\\)\\s-*\\(<[^>]*>\\)?"
     (1 font-lock-type-face)             ; type annotations
     ;; HACK: font-lock-negation-char-face is usually the same as
     ;; 'default'. use this to prevent generic type arguments from
     ;; being rendered in variable face
     (2 font-lock-negation-char-face nil t))
-  `("\\<let\\|use\\|override\\|member\\>"
+  `("\\<let\\|use\\|override\\|member\\|new\\|type\\>"
     (0 font-lock-keyword-face) ; let binding and function arguments
     (,fsharp-var-or-arg-regexp
      (,fsharp-var-pre-form) nil
      (1 font-lock-variable-name-face nil t)))
   `("\\<fun\\>"
-    (0 font-lock-keyword-face) ; let binding and function arguments
+    (0 font-lock-keyword-face) ; lambda function arguments
     (,fsharp-var-or-arg-regexp
      (,fsharp-fun-pre-form) nil
      (1 font-lock-variable-name-face nil t)))
