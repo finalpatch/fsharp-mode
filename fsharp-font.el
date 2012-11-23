@@ -52,6 +52,8 @@
   (setq font-lock-doccomment-face 'Doc)
 ))
 
+(defconst fsharp-access-control-regexp
+  "\\(?:private\\s-+\\|internal\\s-+\\|public\\s-+\\)*")
 (defconst fsharp-function-def-regexp
   "\\<\\(?:let\\|and\\|with\\)\\s-+\\(?:\\(?:inline\\|rec\\)\\s-+\\)?\\([A-Za-z0-9_']+\\)\\(?:\\s-+[A-Za-z_]\\|\\s-*(\\)")
 (defconst fsharp-pattern-function-regexp
@@ -59,14 +61,16 @@
 (defconst fsharp-active-pattern-regexp
   "\\<\\(?:let\\|and\\)\\s-+\\(?:\\(?:inline\\|rec\\)\\s-+\\)?(\\(|[A-Za-z0-9_'|]+|\\))\\(?:\\s-+[A-Za-z_]\\|\\s-*(\\)")
 (defconst fsharp-member-function-regexp
-  "\\<\\(?:override\\|default\\|member\\|abstract\\)\\s-+\\(?:\\(?:inline\\|rec\\|public\\|private\\|internal\\)\\s-+\\)*\\(?:[A-Za-z0-9_']+\\.\\)?\\([A-Za-z0-9_']+\\)")
+  "\\<\\(?:override\\|member\\|abstract\\)\\s-+\\(?:\\(?:inline\\|rec\\)\\s-+\\)?\\(?:[A-Za-z0-9_']+\\.\\)?\\([A-Za-z0-9_']+\\)")
 (defconst fsharp-overload-operator-regexp
-  "\\<\\(?:override\\|default\\|member\\|abstract\\)\\s-+\\(?:\\(?:inline\\|rec\\|public\\|private\\|internal\\)\\s-+\\)*\\(([!%&*+-./<=>?@^|~]+)\\)")
+  "\\<\\(?:override\\|member\\|abstract\\)\\s-+\\(?:\\(?:inline\\|rec\\)\\s-+\\)?\\(([!%&*+-./<=>?@^|~]+)\\)")
 (defconst fsharp-constructor-regexp "^\\s-*\\<\\(new\\) *(.*)[^=]*=")
-(defconst fsharp-field-regexp "^\\s-*val\\s-*\\([A-Za-z_][A-Za-z0-9_']*\\)\\s-*:\\s-*\\([^
-]+\\)")
-(defconst fsharp-type-def-regexp "^\\s-*\\<\\(?:type\\|and\\|inherit\\)\\s-+\\(?:private\\|internal\\|public\\)*\\([A-Za-z0-9_'.]+\\)")
+(defconst fsharp-type-def-regexp 
+  (format "^\\s-*\\<\\(?:type\\|inherit\\)\\s-+%s\\([A-Za-z0-9_'.]+\\)" 
+		  fsharp-access-control-regexp))
 (defconst fsharp-var-or-arg-regexp "\\<\\([A-Za-z_][A-Za-z0-9_']*\\)\\>")
+(defconst fsharp-explicit-field-regexp
+  (format "^\\s-*\\(?:val\\|abstract\\)\\s-*\\(?:mutable\\s-+\\)?%s\\([A-Za-z_][A-Za-z0-9_']*\\)\\s-*:\\s-*\\([A-Za-z_][A-Za-z0-9_'<> \t]*\\)" fsharp-access-control-regexp))
 
 (defvar fsharp-imenu-generic-expression
   `((nil ,(concat "^\\s-*" fsharp-function-def-regexp) 1)
@@ -74,8 +78,8 @@
     (nil ,(concat "^\\s-*" fsharp-active-pattern-regexp) 1)
     (nil ,(concat "^\\s-*" fsharp-member-function-regexp) 1)
     (nil ,(concat "^\\s-*" fsharp-overload-operator-regexp) 1)
-    (nil ,(concat "^\\s-*" fsharp-constructor-regexp) 1)
-    (nil ,(concat "^\\s-*" fsharp-type-def-regexp) 1)
+    (nil ,fsharp-constructor-regexp 1)
+    (nil ,fsharp-type-def-regexp 1)
     ))
 
 (defvar fsharp-var-pre-form
@@ -154,19 +158,24 @@
 ;;      . font-lock-keyword-face)
 ;control
 
+  ;; attributes
+  '("\\[<[A-Za-z0-9_]+>\\]" . font-lock-preprocessor-face)
+  ;; type defines
+  `(,fsharp-type-def-regexp 1 font-lock-type-face)
   `(,fsharp-function-def-regexp 1 font-lock-function-name-face)
   `(,fsharp-pattern-function-regexp 1 font-lock-function-name-face)
   `(,fsharp-active-pattern-regexp 1 font-lock-function-name-face)
   `(,fsharp-member-function-regexp 1 font-lock-function-name-face)
   `(,fsharp-overload-operator-regexp 1 font-lock-function-name-face)
-  `(,fsharp-constructor-regexp 1 font-lock-function-name-face)
-  `("[^:]:\\s-*\\(\\<[A-Za-z_'][^,;)}=<-]*\\)\\s-*\\(<[^>]*>\\)?"
+  ;; `(,fsharp-constructor-regexp 1 font-lock-function-name-face)
+  `("[^:]:\\s-*\\(\\<[A-Za-z_'][^,)=<-]*\\)\\s-*\\(<[^>]*>\\)?"
     (1 font-lock-type-face)             ; type annotations
     ;; HACK: font-lock-negation-char-face is usually the same as
     ;; 'default'. use this to prevent generic type arguments from
     ;; being rendered in variable face
     (2 font-lock-negation-char-face nil t))
-  `("\\<let\\|use\\|override\\|default\\|member\\>"
+  `(,(format "^\\s-*\\<\\(let\\|use\\|override\\|member\\|and\\|\\(?:%snew\\)\\)\\>"
+			 fsharp-access-control-regexp)
     (0 font-lock-keyword-face) ; let binding and function arguments
     (,fsharp-var-or-arg-regexp
      (,fsharp-var-pre-form) nil
@@ -176,21 +185,20 @@
     (,fsharp-var-or-arg-regexp
      (,fsharp-fun-pre-form) nil
      (1 font-lock-variable-name-face nil t)))
-  `(,fsharp-field-regexp
-    (1 font-lock-variable-name-face)
-    (2 font-lock-type-face))
+  `(,fsharp-type-def-regexp
+    (0 font-lock-keyword-face) ; implicit constructor arguments
+    (,fsharp-var-or-arg-regexp
+     (,fsharp-var-pre-form) nil
+     (1 font-lock-variable-name-face nil t)))
+  `(,fsharp-explicit-field-regexp
+	(1 font-lock-variable-name-face)
+	(2 font-lock-type-face))
 
   ;; open namespace
   '("\\<open\s\\([A-Za-z0-9_.]+\\)" 1 font-lock-type-face)
 
   ;; module/namespace
   '("\\<\\(?:module\\|namespace\\)\s\\([A-Za-z0-9_.]+\\)" 1 font-lock-type-face)
-
-  ;; type defines
-  `(,fsharp-type-def-regexp 1 font-lock-type-face)
-
-  ;; attributes
-  '("\\[<[A-Za-z0-9_]+>\\]" . font-lock-preprocessor-face)
 
 ;labels (and open)
    '("\\<\\(assert\\|open\\|include\\|module\\|namespace\\|extern\\|void\\)\\>\\|[~?][ (]*[a-z][a-zA-Z0-9_']*"
